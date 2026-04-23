@@ -1,0 +1,19 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY agents/python-agent/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY agents/python-agent/agent.py .
+
+ENV ENDPOINT=ws://api:4000/ws/ingest \
+    ROBOT_ID=robot-sim-01 \
+    NAME="Warehouse Scout" \
+    LOCATION=dock-a
+
+CMD ["python", "agent.py", \
+     "--robot-id", "${ROBOT_ID}", \
+     "--name", "${NAME}", \
+     "--location", "${LOCATION}", \
+     "--endpoint", "${ENDPOINT}"]

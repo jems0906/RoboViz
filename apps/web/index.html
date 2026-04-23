@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RoboViz</title>
+    <meta name="description" content="Real-time robot telemetry dashboard and replay engine" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      window.__robovizMounted = false;
+      window.addEventListener('DOMContentLoaded', function () {
+        setTimeout(function () {
+          var root = document.getElementById('root');
+          if (!root || window.__robovizMounted || root.children.length > 0) {
+            return;
+          }
+          root.innerHTML = '<section style="max-width:760px;margin:48px auto;padding:24px;border:1px solid rgba(255,123,142,0.35);border-radius:16px;background:rgba(20,10,14,0.82);color:#ffe6ea;font-family:sans-serif;"><h1 style="margin:0 0 12px;font-size:24px;">RoboViz did not initialize</h1><p style="margin:0 0 10px;opacity:0.92;">The dashboard script did not mount in time.</p><p style="margin:0;opacity:0.82;">Try hard refresh (Ctrl+F5). If this persists, open DevTools console and share the first error.</p></section>';
+        }, 4500);
+      });
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
