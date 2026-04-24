@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { buildWebSocketUrl, exportRecording, fetchRecordings, fetchReplayEvents, fetchRobots } from './api';
 import { PointCloudView } from './PointCloudView';
-import type { LiveRobotSnapshot, LiveTelemetryEvent, RecordingSummary, ReplayEvent, RobotSummary, SensorType } from './types';
+import type { LiveRobotSnapshot, RecordingSummary, ReplayEvent, RobotSummary, SensorType } from './types';
 
 type ReplayState = {
   events: ReplayEvent[];
