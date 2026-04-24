@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: roboviz-api
+    runtime: node
+    plan: starter
+    buildCommand: npm install && npm --workspace @roboviz/api run build
+    startCommand: npm --workspace @roboviz/api run start
+    healthCheckPath: /health
+    autoDeploy: true
+    disk:
+      name: roboviz-data
+      mountPath: /var/data/roboviz
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        fromDatabase:
+          name: roboviz-db
+          property: connectionString
+      - key: CORS_ORIGIN
+        value: https://roboviz-web.onrender.com
+      - key: STORAGE_DRIVER
+        value: filesystem
+      - key: FILESYSTEM_STORAGE_PATH
+        value: /var/data/roboviz/raw
+      - key: EXPORT_PATH
+        value: /var/data/roboviz/exports
+
+  - type: static
+    name: roboviz-web
+    buildCommand: npm install && npm --workspace @roboviz/web run build
+    staticPublishPath: apps/web/dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: VITE_API_BASE
+        value: https://roboviz-api.onrender.com
+
+databases:
+  - name: roboviz-db
+    plan: starter

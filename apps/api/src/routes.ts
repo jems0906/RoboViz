@@ -12,6 +12,7 @@ import {
   listReplayEvents,
   listRobots
 } from './db.js';
+import { config } from './config.js';
 import { replayQuerySchema } from './types.js';
 
 function buildTfRecord(records: Buffer[]) {
@@ -145,7 +146,7 @@ export function createRoutes() {
           payload_json: { type: 'UTF8' }
         });
 
-        const exportDir = path.resolve(process.cwd(), '../../artifacts');
+        const exportDir = config.exportPath;
         await mkdir(exportDir, { recursive: true });
         const parquetPath = path.join(exportDir, `${recordingId}.parquet`);
         const writer = await Parquet.ParquetWriter.openFile(schema, parquetPath);
