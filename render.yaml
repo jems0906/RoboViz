@@ -3,10 +3,17 @@ services:
     name: roboviz-api
     runtime: node
     plan: starter
+    region: oregon
+    autoDeployTrigger: checksPass
+    numInstances: 1
     buildCommand: npm install && npm --workspace @roboviz/api run build
     startCommand: npm --workspace @roboviz/api run start
     healthCheckPath: /health
-    autoDeploy: true
+    buildFilter:
+      paths:
+        - package.json
+        - package-lock.json
+        - apps/api/**
     disk:
       name: roboviz-data
       mountPath: /var/data/roboviz
@@ -27,11 +34,23 @@ services:
       - key: EXPORT_PATH
         value: /var/data/roboviz/exports
 
-  - type: static
+  - type: web
     name: roboviz-web
+    runtime: static
+    autoDeployTrigger: checksPass
     buildCommand: npm install && npm --workspace @roboviz/web run build
     staticPublishPath: apps/web/dist
-    pullRequestPreviewsEnabled: false
+    buildFilter:
+      paths:
+        - package.json
+        - package-lock.json
+        - apps/web/**
+    previews:
+      generation: manual
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: NODE_VERSION
         value: 20
@@ -40,4 +59,7 @@ services:
 
 databases:
   - name: roboviz-db
-    plan: starter
+    plan: basic-256mb
+    region: oregon
+    postgresMajorVersion: "18"
+    databaseName: roboviz
