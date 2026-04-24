@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { promises as fs } from 'node:fs';
 import { Pool } from 'pg';
 import { config } from './src/config.js';
 
