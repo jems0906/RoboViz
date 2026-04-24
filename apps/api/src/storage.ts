@@ -1,6 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { config } from './config.js';
 
 export type StoredObject = {
@@ -22,18 +21,36 @@ class FilesystemStorage implements ArchiveStorage {
 }
 
 class S3ArchiveStorage implements ArchiveStorage {
-  private client = new S3Client({
-    endpoint: config.s3.endpoint,
-    region: config.s3.region,
-    credentials: config.s3.accessKeyId && config.s3.secretAccessKey ? {
-      accessKeyId: config.s3.accessKeyId,
-      secretAccessKey: config.s3.secretAccessKey
-    } : undefined,
-    forcePathStyle: true
-  });
+  private clientPromise?: Promise<{
+    send: (command: unknown) => Promise<unknown>;
+  }>;
+
+  private async getClient() {
+    if (!this.clientPromise) {
+      this.clientPromise = (async () => {
+        const { S3Client } = await import('@aws-sdk/client-s3');
+        return new S3Client({
+          endpoint: config.s3.endpoint,
+          region: config.s3.region,
+          credentials: config.s3.accessKeyId && config.s3.secretAccessKey ? {
+            accessKeyId: config.s3.accessKeyId,
+            secretAccessKey: config.s3.secretAccessKey
+          } : undefined,
+          forcePathStyle: true
+        });
+      })();
+    }
+
+    return this.clientPromise;
+  }
 
   async putObject(objectKey: string, body: Buffer, contentType: string) {
-    await this.client.send(new PutObjectCommand({
+    const [{ PutObjectCommand }, client] = await Promise.all([
+      import('@aws-sdk/client-s3'),
+      this.getClient()
+    ]);
+
+    await client.send(new PutObjectCommand({
       Bucket: config.s3.bucket,
       Key: objectKey,
       Body: body,
